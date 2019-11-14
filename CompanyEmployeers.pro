@@ -1,4 +1,4 @@
-QT       += core gui
+QT       += core gui xml
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -16,11 +16,23 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    centralwidget.cpp \
+    company.cpp \
+    employee.cpp \
     main.cpp \
-    widget.cpp
+    mainwindow.cpp \
+    newcompanywidget.cpp \
+    newemployeewidget.cpp \
+    subdivision.cpp
 
 HEADERS += \
-    widget.h
+    centralwidget.h \
+    company.h \
+    employee.h \
+    mainwindow.h \
+    newcompanywidget.h \
+    newemployeewidget.h \
+    subdivision.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
