@@ -2,7 +2,7 @@
 #define CENTRALWIDGET_H
 
 #include <QObject>
-#include <QWidget>
+#include <QtWidgets>
 
 class CentralWidget : public QWidget
 {
@@ -10,9 +10,30 @@ class CentralWidget : public QWidget
 public:
     explicit CentralWidget(QWidget *parent = nullptr);
 
+    QColumnView *view() const;
+
 signals:
+    void addEmp();
+    void addSub(QString);
+    void curSub(QString);
 
 public slots:
+    void checkSubName();
+    void sendSignal();
+    void setBtn();
+    void setName(QString);
+private:
+    QColumnView * _view;
+
+    QLineEdit _lineNameSub;
+
+    QPushButton _btnAddSub;
+    QPushButton _btnAddEmployee;
+
+    QVBoxLayout _vLay;
+    QHBoxLayout _hLay;
+
+
 };
 
 #endif // CENTRALWIDGET_H
