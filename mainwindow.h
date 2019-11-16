@@ -2,48 +2,55 @@
 #define MAINWINDOW_H
 
 #include "company.h"
-#include "newcompanywidget.h"
+#include "cmdaddsub.h"
+#include "cmdaddemployee.h"
 #include "newemployeewidget.h"
 #include "centralwidget.h"
+#include "commandhistory.h"
 
 #include <QMainWindow>
 #include <QObject>
 #include <QtWidgets>
-
+#include <QFile>
+#include <QtXml>
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = nullptr);
+     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-
+    void executeCommand(Command* command);
+    void undoCommand();
 
 public slots:
     void addSubdivision(QString name);
-    void addEmployee();
+    void addEmployee(QString name, QString surname, QString patronymic, QString position, int salary);
     void openNewCompanyDialog();
     void openNewEmployeeDialog();
     void openCompany();
-    void newCompany(QString, QString);
-    void setCurSub(QString);
-private:
-    CentralWidget* _centralWidget;
-    Company* _company;
+    void newCompany(QString);
+    void setCurSub(QString currentSubName);
 
-    NewCompanyWidget _newCompanyWidget;
+private:
+
+    Company* _company;
+    QList<Command*>* _history;
+    CentralWidget* _centralWidget;
+
     NewEmployeeWidget _newEmployeeWidget;
 
-    QString _curSub;
+    QUrl _pathXML;
+
+    QString _currentSubName;
 
     void createActions();
     void createStatusBar();
-    void readSettings();
-    void writeSettings();
+
     bool maybeSave();
-    bool saveFile(const QString &fileName);
+    void saveFile();
     void setCurrentFile(const QString &fileName);
 };
 

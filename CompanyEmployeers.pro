@@ -17,20 +17,24 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     centralwidget.cpp \
+    cmdaddemployee.cpp \
+    cmdaddsub.cpp \
+    command.cpp \
     company.cpp \
     employee.cpp \
     main.cpp \
     mainwindow.cpp \
-    newcompanywidget.cpp \
     newemployeewidget.cpp \
     subdivision.cpp
 
 HEADERS += \
     centralwidget.h \
+    cmdaddemployee.h \
+    cmdaddsub.h \
+    command.h \
     company.h \
     employee.h \
     mainwindow.h \
-    newcompanywidget.h \
     newemployeewidget.h \
     subdivision.h
 

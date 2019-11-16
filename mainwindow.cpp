@@ -3,14 +3,18 @@
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
-    createActions();
+
+    _company = nullptr;
 
     _centralWidget = new CentralWidget();
+    _history = new QList<Command*>();
 
     setCentralWidget(_centralWidget);
     centralWidget()->setEnabled(false);
 
-    connect(_centralWidget, SIGNAL(addSub(QString)), this, SLOT(addSubdivision(QString)));
+    createActions();
+
+    connect(_centralWidget, SIGNAL(SubName(QString)), this, SLOT(addSubdivision(QString)));
     connect(_centralWidget, &CentralWidget::addEmp, this, &MainWindow::openNewEmployeeDialog);
     connect(_centralWidget, SIGNAL(curSub(QString)), this, SLOT(setCurSub(QString)));
 }
@@ -24,7 +28,9 @@ void MainWindow::createActions()
     QAction *newAct = new QAction("New");
     newAct->setShortcuts(QKeySequence::New);
     newAct->setStatusTip(tr("Create a new file"));
+
     connect(newAct, &QAction::triggered, this, &MainWindow::openNewCompanyDialog);
+
     fileMenu->addAction(newAct);
     fileToolBar->addAction(newAct);
 
@@ -32,19 +38,31 @@ void MainWindow::createActions()
     QAction *openAct = new QAction("Open");
     openAct->setShortcuts(QKeySequence::Open);
     openAct->setStatusTip(tr("Open an existing file"));
+
     connect(openAct, &QAction::triggered, this, &MainWindow::openCompany);
+
     fileMenu->addAction(openAct);
     fileToolBar->addAction(openAct);
+
+
+    QAction *saveAct = new QAction("Save");
+    openAct->setShortcuts(QKeySequence::Save);
+    openAct->setStatusTip(tr("Save file"));
+
+    connect(saveAct, &QAction::triggered, this, &MainWindow::saveFile);
+
+    fileMenu->addAction(saveAct);
+    fileToolBar->addAction(saveAct);
 }
 
 
 
 void MainWindow::openCompany()
 {
-    QFileDialog dialog(this);
-    dialog.setNameFilter(".xml");
 
-    QString file = dialog.getOpenFileName();
+    QString file = QFileDialog::getOpenFileName(this, tr("Open File"),
+                                                ".",
+                                                tr("XML files (*.xml)"));
 
     if(!file.isEmpty())
     {
@@ -55,46 +73,72 @@ void MainWindow::openCompany()
 void MainWindow::openNewCompanyDialog()
 {
 
-    connect(&_newCompanyWidget, SIGNAL(sendData(QString, QString)), this, SLOT(newCompany(QString, QString)));
+    _pathXML = QFileDialog::getSaveFileName(this,
+                                            tr("Save Xml"), ".",
+                                            tr("Xml files (*.xml)"));
+    if(_company == nullptr)
+    {
 
-    _newCompanyWidget.show();
+        if(_pathXML.isValid())
+            newCompany(_pathXML.fileName());
+        else
+        {
+            return;
+        }
+    }
 }
 
-void MainWindow::newCompany(QString name, QString path)
+void MainWindow::newCompany(QString name)
 {
-    _company = new Company(name, path);
-
-    _newCompanyWidget.close();
+    _company = new Company(name);
 
     _centralWidget->view()->setModel(_company);
-
     centralWidget()->setEnabled(true);
-    connect(_company, &Company::go,_centralWidget,&CentralWidget::setName);
 }
 
-void MainWindow::setCurSub(QString curSub)
+void MainWindow::setCurSub(QString currentSubName)
 {
-    _curSub = curSub;
+    _currentSubName = currentSubName;
 }
 
 void MainWindow::addSubdivision(QString name)
 {
-    if(name.isEmpty()) return;
-    _company->addSubdivision(name);
+    if(_company->subdivisions()->count(name) != 0)
+    {
+
+    }
+    else
+    {
+        CmdAddSub * cmd = new CmdAddSub (_company, name);
+        executeCommand(cmd);
+    }
 }
+
+void MainWindow::executeCommand(Command *command)
+{
+    command->execute();
+    _history->push(command);
+}
+
+void MainWindow::undoCommand()
+{
+
+    if(_history)
+}
+
 
 void MainWindow::openNewEmployeeDialog()
 {
-
-    _newEmployeeWidget.setSubName(_curSub);
-
-    connect(&_newEmployeeWidget, SIGNAL(sendData(QString,QString,QString,QString,QString,int)),
-            _company, SLOT(addEmployee(QString,QString,QString,QString,QString,int)));
+    connect(&_newEmployeeWidget, SIGNAL(dataEmployee(QString,QString,QString,QString,int)),
+            this, SLOT(addEmployee(QString,QString,QString,QString,int)));
     _newEmployeeWidget.show();
 }
 
-void MainWindow::addEmployee()
+void MainWindow::addEmployee(QString name, QString surname, QString patronymic, QString position, int salary)
 {
+    Subdivision * sub = _company->subdivisions()->value(_currentSubName);
+    CmdAddEmployee * cmd = new CmdAddEmployee(sub, name,surname,patronymic,position,salary);
+    executeCommand(cmd);
 
 }
 
@@ -103,24 +147,66 @@ void MainWindow::createStatusBar()
 
 }
 
-void MainWindow::readSettings()
-{
-
-}
-
-void MainWindow::writeSettings()
-{
-
-}
 
 bool MainWindow::maybeSave()
 {
 
 }
 
-bool MainWindow::saveFile(const QString &fileName)
+void MainWindow::saveFile()
 {
+    QFile xmlFile(_pathXML.toString());
+    xmlFile.open(QIODevice::WriteOnly);
 
+    QXmlStreamWriter writer(&xmlFile);
+    writer.setAutoFormatting(true);
+    writer.writeStartDocument();
+    writer.writeStartElement("company");
+
+    writer.writeAttribute("name", _pathXML.fileName());
+
+    QMapIterator<QString, Subdivision*> i (*_company->subdivisions());
+
+    while(i.hasNext())
+    {
+        i.next();
+
+        Subdivision *subdivision = i.value();
+
+        writer.writeStartElement("subdivision");
+
+        writer.writeAttribute("name", subdivision->name());
+        writer.writeAttribute("count_employees", QString::number(subdivision->countEmp()));
+        writer.writeAttribute("avg_salary", QString::number(subdivision->avgSalary()));
+
+        QMapIterator<int, Employee*> it (*subdivision->employees());
+
+        while(it.hasNext())
+        {
+
+            it.next();
+
+            Employee * employee = it.value();
+
+
+            writer.writeStartElement("employee");
+
+            writer.writeAttribute("name", employee->name());
+            writer.writeAttribute("surname", employee->surname());
+            writer.writeAttribute("patronymic", employee->patronymic());
+            writer.writeAttribute("position", employee->position());
+
+            writer.writeAttribute("salary", QString::number(employee->salary()));
+
+            writer.writeEndElement();
+        }
+        writer.writeEndElement();
+
+    }
+    writer.writeEndElement();
+    writer.writeEndDocument();
+
+    xmlFile.close();
 }
 
 void MainWindow::setCurrentFile(const QString &fileName)
@@ -132,3 +218,4 @@ MainWindow::~MainWindow()
 {
 
 }
+
