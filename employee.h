@@ -10,19 +10,19 @@ public:
     Employee();
     Employee(QString name, QString surname, QString patronymic, QString position, int salary);
 
-    QString getName() const;
+    QString name() const;
     void setName(const QString &value);
 
-    QString getSurname() const;
+    QString surname() const;
     void setSurname(const QString &value);
 
-    QString getPatronymic() const;
+    QString patronymic() const;
     void setPatronymic(const QString &value);
 
-    QString getPosition() const;
+    QString position() const;
     void setPosition(const QString &value);
 
-    int getSalary() const;
+    int salary() const;
     void setSalary(int value);
 
 

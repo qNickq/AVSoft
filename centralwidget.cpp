@@ -43,7 +43,7 @@ void CentralWidget::checkSubName()
 
 void CentralWidget::sendSignal()
 {
-    if(sender() == &_btnAddSub) emit addSub(_lineNameSub.text());
+    if(sender() == &_btnAddSub) emit SubName(_lineNameSub.text());
 
     else if (sender() == &_btnAddEmployee)
     {
@@ -61,10 +61,6 @@ void CentralWidget::setBtn()
     _btnAddEmployee.setEnabled(true);
 }
 
-void CentralWidget::setName(QString name)
-{
-    _lineNameSub.setText(name);
-}
 
 QColumnView *CentralWidget::view() const
 {

@@ -14,14 +14,14 @@ public:
 
 signals:
     void addEmp();
-    void addSub(QString);
+    void SubName(QString);
     void curSub(QString);
 
 public slots:
     void checkSubName();
     void sendSignal();
     void setBtn();
-    void setName(QString);
+
 private:
     QColumnView * _view;
 

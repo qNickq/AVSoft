@@ -15,7 +15,7 @@ Employee::Employee(QString name, QString surname, QString patronymic, QString po
 
 }
 
-QString Employee::getName() const
+QString Employee::name() const
 {
     return _name;
 }
@@ -25,7 +25,7 @@ void Employee::setName(const QString &value)
     _name = value;
 }
 
-QString Employee::getSurname() const
+QString Employee::surname() const
 {
     return _surname;
 }
@@ -35,7 +35,7 @@ void Employee::setSurname(const QString &value)
     _surname = value;
 }
 
-QString Employee::getPatronymic() const
+QString Employee::patronymic() const
 {
     return _patronymic;
 }
@@ -45,7 +45,7 @@ void Employee::setPatronymic(const QString &value)
     _patronymic = value;
 }
 
-QString Employee::getPosition() const
+QString Employee::position() const
 {
     return _position;
 }
@@ -55,7 +55,7 @@ void Employee::setPosition(const QString &value)
     _position = value;
 }
 
-int Employee::getSalary() const
+int Employee::salary() const
 {
     return _salary;
 }
