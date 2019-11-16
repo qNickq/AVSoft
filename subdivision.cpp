@@ -51,6 +51,11 @@ void Subdivision::setName(const QString &name)
     _name = name;
 }
 
+QMap<int, Employee *> *Subdivision::employees() const
+{
+    return _employees;
+}
+
 
 Subdivision::~Subdivision()
 {

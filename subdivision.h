@@ -22,6 +22,8 @@ public:
 
 
 
+    QMap<int, Employee *> *employees() const;
+
 private:
     QMap<int, Employee*>* _employees;
 

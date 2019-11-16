@@ -55,7 +55,7 @@ NewEmployeeWidget::NewEmployeeWidget(QWidget *parent) : QWidget(parent)
 
 void NewEmployeeWidget::checkLines()
 {
-    if(!_lineName.text().isEmpty() && !_lineSurname.text().isEmpty() && !_lineSalary.text().isEmpty() && !_linePosition.text().isEmpty())
+    if(!(_lineName.text().isEmpty() || _lineSurname.text().isEmpty() || _lineSalary.text().isEmpty() || _linePosition.text().isEmpty()))
     {
         _btnAdd.setEnabled(true);
     }
@@ -67,13 +67,9 @@ void NewEmployeeWidget::checkLines()
 
 void NewEmployeeWidget::addEmp()
 {
-    emit sendData(_subName, _lineName.text(),_lineSurname.text(),_linePatronymic.text(),_linePosition.text(), _lineSalary.text().toInt());
+    emit dataEmployee(_lineName.text(), _lineSurname.text(), _linePatronymic.text(), _linePosition.text(), _lineSalary.text().toInt());
 }
 
-void NewEmployeeWidget::setSubName(const QString &subName)
-{
-    _subName = subName;
-}
 
 NewEmployeeWidget::~NewEmployeeWidget()
 {
