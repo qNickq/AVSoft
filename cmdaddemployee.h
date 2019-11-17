@@ -3,12 +3,15 @@
 
 #include "command.h"
 #include "subdivision.h"
-
+#include "company.h"
 class CmdAddEmployee : public Command
 {
 private:
-    Subdivision * _subdivision;
+    Company* _company;
+    Subdivision* _subdivision;
+    Employee* _employee;
 
+    QString _subname;
     QString _name;
     QString _surname;
     QString _patronymic;
@@ -17,11 +20,11 @@ private:
     int _salary;
 
 public:
-    CmdAddEmployee(Subdivision * subdivision ,QString name,QString surname, QString patronymic, QString position , int salary);
+    CmdAddEmployee(Company* company, QString subname,QString name,QString surname, QString patronymic, QString position , int salary);
 
     void execute();
-
-    ~CmdAddEmployee() ;
+    void undo();
+    void redo();
 };
 
 #endif // CMDADDEMPLOYEE_H

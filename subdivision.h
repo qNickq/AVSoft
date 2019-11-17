@@ -15,8 +15,8 @@ public:
 
     int countEmp() const;
 
-    void addEmployee(QString name, QString surname, QString patronymic,QString position, int salary);
-
+    Employee* addEmployee(QString name, QString surname, QString patronymic,QString position, int salary);
+    void removeEmployee(Employee*);
     QString name() const;
     void setName(const QString &name);
 

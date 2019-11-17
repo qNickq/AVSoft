@@ -1,8 +1,9 @@
 #include "cmdaddemployee.h"
 
-CmdAddEmployee::CmdAddEmployee(Subdivision * subdivision, QString name, QString surname, QString patronymic, QString position, int salary) : Command()
+CmdAddEmployee::CmdAddEmployee(Company * company,QString subname, QString name, QString surname, QString patronymic, QString position, int salary) : Command()
 {
-    _subdivision = subdivision;
+    _company = company;
+    _subname = subname;
     _name = name;
     _surname = surname;
     _patronymic = patronymic;
@@ -12,9 +13,18 @@ CmdAddEmployee::CmdAddEmployee(Subdivision * subdivision, QString name, QString 
 
 void CmdAddEmployee::execute()
 {
-    _subdivision->addEmployee(_name, _surname, _patronymic, _position,_salary);
+    _subdivision = _company->subdivisions()->value(_subname);
+    _employee = _subdivision->addEmployee(_name, _surname, _patronymic, _position,_salary);
 }
 
-CmdAddEmployee::~CmdAddEmployee()
+void CmdAddEmployee::undo()
 {
+
+    _subdivision->removeEmployee(_employee);
+}
+
+void CmdAddEmployee::redo()
+{
+    _subdivision = _company->subdivisions()->value(_subname);
+    _employee = _subdivision->addEmployee(_name, _surname, _patronymic, _position,_salary);
 }

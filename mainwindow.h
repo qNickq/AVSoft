@@ -6,7 +6,7 @@
 #include "cmdaddemployee.h"
 #include "newemployeewidget.h"
 #include "centralwidget.h"
-#include "commandhistory.h"
+
 
 #include <QMainWindow>
 #include <QObject>
@@ -24,27 +24,29 @@ public:
 
     void executeCommand(Command* command);
     void undoCommand();
-
+    void redoCommand();
+    void clearHistory();
 public slots:
     void addSubdivision(QString name);
     void addEmployee(QString name, QString surname, QString patronymic, QString position, int salary);
     void openNewCompanyDialog();
-    void openNewEmployeeDialog();
     void openCompany();
     void newCompany(QString);
     void setCurSub(QString currentSubName);
+    void openNewEployeeDialog();
 
 private:
 
     Company* _company;
-    QList<Command*>* _history;
+
+    QList<Command*> _history;
+    QListIterator<Command*> _iterator;
+
     CentralWidget* _centralWidget;
 
-    NewEmployeeWidget _newEmployeeWidget;
-
+    NewEmployeeWidget* _newEmployeeWidget;
+    Subdivision * _currentSub;
     QUrl _pathXML;
-
-    QString _currentSubName;
 
     void createActions();
     void createStatusBar();

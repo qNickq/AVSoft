@@ -8,12 +8,12 @@ class CentralWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit CentralWidget(QWidget *parent = nullptr);
-
+    CentralWidget(QWidget *parent = nullptr);
+    ~CentralWidget();
     QColumnView *view() const;
 
 signals:
-    void addEmp();
+    void addEmployee();
     void SubName(QString);
     void curSub(QString);
 

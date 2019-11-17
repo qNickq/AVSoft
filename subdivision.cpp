@@ -1,11 +1,5 @@
 #include "subdivision.h"
 
-Subdivision::Subdivision()
-{
-
-
-}
-
 Subdivision::Subdivision(QString name) : QStandardItem(name)
 {
     _name = name;
@@ -26,19 +20,18 @@ int Subdivision::countEmp() const
     return _countEmp;
 }
 
-void Subdivision::addEmployee(QString name, QString surname, QString patronymic, QString position, int salary)
+Employee* Subdivision::addEmployee(QString name, QString surname, QString patronymic, QString position, int salary)
 {
     Employee *employee = new Employee(name, surname,patronymic,position,salary);
 
-    employee->setSubdivisionId(_id);
-    employee->setId(_employees->count());
-
     _salary += salary;
-    _employees->insert(employee->id(), employee);
+    _employees->insert(_countEmp, employee);
+    employee->setId(_countEmp);
     _countEmp++;
     _avgSalary = _salary / _countEmp;
 
     this->appendRow(employee);
+    return employee;
 }
 
 QString Subdivision::name() const
@@ -51,6 +44,21 @@ void Subdivision::setName(const QString &name)
     _name = name;
 }
 
+void Subdivision::removeEmployee(Employee * emp)
+{
+
+    _salary -= emp->salary();
+    _employees->remove(emp->id());
+    _countEmp--;
+    if(_countEmp <= 0) _avgSalary = 0;
+    else
+    {
+        _avgSalary = _salary / _countEmp;
+    }
+
+    this->removeRow(emp->row());
+}
+
 QMap<int, Employee *> *Subdivision::employees() const
 {
     return _employees;
@@ -59,5 +67,12 @@ QMap<int, Employee *> *Subdivision::employees() const
 
 Subdivision::~Subdivision()
 {
-
+    QMap<int, Employee*>::iterator i = _employees->begin();
+    while (i != _employees->end())
+    {
+         delete i.value();
+         ++i;
+    }
+    _employees->clear();
+    delete  _employees;
 }

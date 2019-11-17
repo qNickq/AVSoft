@@ -13,7 +13,8 @@ public:
 
     Company(QString name);
 
-    void addSubdivision(QString name);
+    Subdivision *addSubdivision(QString name);
+    void removeSubdivision(QString name);
 
     int size() const;
 

@@ -4,7 +4,8 @@
 CentralWidget::CentralWidget(QWidget *parent) : QWidget(parent)
 {
     _view = new QColumnView();
-    _view->setSelectionMode(QAbstractItemView::SingleSelection);
+    _view->setAutoFillBackground(true);
+    _view->setSelectionMode(QAbstractItemView::SelectionMode::ExtendedSelection);
     _view->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     _btnAddSub.setText("Add subdivision");
@@ -29,6 +30,12 @@ CentralWidget::CentralWidget(QWidget *parent) : QWidget(parent)
     connect(&_btnAddSub, &QPushButton::clicked, this, &CentralWidget::sendSignal);
     connect(&_btnAddEmployee, &QPushButton::clicked, this, &CentralWidget::sendSignal);
 
+
+}
+
+CentralWidget::~CentralWidget()
+{
+    delete _view;
 }
 
 void CentralWidget::checkSubName()
@@ -43,22 +50,31 @@ void CentralWidget::checkSubName()
 
 void CentralWidget::sendSignal()
 {
-    if(sender() == &_btnAddSub) emit SubName(_lineNameSub.text());
-
+    if(sender() == &_btnAddSub)
+    {
+        emit SubName(_lineNameSub.text());
+    }
     else if (sender() == &_btnAddEmployee)
     {
         QVariant curSubName(_view->model()->itemData(_view->selectionModel()->selectedIndexes().first()).first());
         emit curSub(curSubName.toString());
-        emit addEmp();
+        emit addEmployee();
     }
 
-    connect(_view->selectionModel(), &QItemSelectionModel::selectionChanged, this, &CentralWidget::setBtn);
 
 }
 
 void CentralWidget::setBtn()
 {
-    _btnAddEmployee.setEnabled(true);
+    if(_view->selectionModel()->hasSelection())
+    {
+        _btnAddEmployee.setEnabled(true);
+    }
+    else
+    {
+        _btnAddEmployee.setEnabled(false);
+    }
+    update();
 }
 
 
