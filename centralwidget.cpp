@@ -1,86 +1,95 @@
 #include "centralwidget.h"
-#include <QDebug>
 
-CentralWidget::CentralWidget(QWidget *parent) : QWidget(parent)
+#include <department.h>
+#include <ui_centralwidget.h>
+
+CentralWidget::CentralWidget(QWidget *parent) : QWidget(parent), ui(new Ui::CentralWidget)
 {
-    _view = new QColumnView();
-    _view->setAutoFillBackground(true);
-    _view->setSelectionMode(QAbstractItemView::SelectionMode::ExtendedSelection);
-    _view->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->setupUi(this);
 
-    _btnAddSub.setText("Add subdivision");
-    _btnAddSub.setEnabled(false);
+    ui->_view->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-    _lineNameSub.setPlaceholderText("Enter name subdivision");
-    _lineNameSub.setValidator(new QRegExpValidator(QRegExp("[A-Z]{0,20}",Qt::CaseInsensitive)));
+    ui->_btnAddEmp->setDisabled(true);
+    ui->_btnRemoveEmp->setDisabled(true);
 
-    _btnAddEmployee.setText("Add employee");
-    _btnAddEmployee.setEnabled(false);
+    ui->_btnRemoveDep->setDisabled(true);
 
-    _hLay.addWidget(&_btnAddSub);
-    _hLay.addWidget(&_lineNameSub);
-    _hLay.addWidget(&_btnAddEmployee);
+    connect(ui->_btnAddEmp, SIGNAL(clicked()), this, SIGNAL(addEmployee()));
+    connect(ui->_btnRemoveEmp, SIGNAL(clicked()), this, SIGNAL(removeEmployee()));
+    connect(ui->_btnRemoveDep, SIGNAL(clicked()), this, SIGNAL(removeDepartment()));
+}
 
-    _vLay.addLayout(&_hLay);
-    _vLay.addWidget(_view);
+void CentralWidget::sendAddDep()
+{
+    QString s = ui->_lineNameDep->text();
+    if(!s.isEmpty())
+    {
+        emit addDepartment(s);
+    }
+}
 
-    setLayout(&_vLay);
+void CentralWidget::sendEditDep()
+{
+    QString s = ui->_lineName->text();
 
-    connect(&_lineNameSub, &QLineEdit::textChanged, this, &CentralWidget::checkSubName);
-    connect(&_btnAddSub, &QPushButton::clicked, this, &CentralWidget::sendSignal);
-    connect(&_btnAddEmployee, &QPushButton::clicked, this, &CentralWidget::sendSignal);
+    if(!s.isEmpty())
+    {
+        emit editDepartment(s);
+    }
+}
 
+void CentralWidget::setEnableBtns()
+{
+    if(ui->_view->selectionModel()->hasSelection())
+    {
+        _currentIndex = ui->_view->selectionModel()->selectedIndexes().first().siblingAtColumn(0);
 
+        if(_currentIndex.parent() == QModelIndex())
+        {
+            ui->_btnAddEmp->setEnabled(true);
+            ui->_btnRemoveDep->setEnabled(true);
+            ui->_btnRemoveEmp->setEnabled(false);
+
+            emit curDepartment(_currentIndex);
+        }
+        else
+        {
+            ui->_btnAddEmp->setEnabled(true);
+            ui->_btnRemoveEmp->setEnabled(true);
+            ui->_btnRemoveDep->setEnabled(false);
+
+            emit curDepartment(_currentIndex.parent());
+            emit curEmployee(_currentIndex);
+        }
+    }
+    else
+    {
+        _currentIndex = QModelIndex();
+
+        ui->_btnAddEmp->setEnabled(false);
+        ui->_btnRemoveEmp->setEnabled(false);
+        ui->_btnRemoveDep->setEnabled(false);
+    }
+}
+
+QModelIndex CentralWidget::currentIndex() const
+{
+    return _currentIndex;
+}
+
+void CentralWidget::setDep(QString name , int count, int salary)
+{
+    ui->_lineName->setText(name);
+    ui->_lCount->setText(QString::number(count));
+    ui->_lSalary->setText(QString::number(salary));
+}
+
+QTreeView *CentralWidget::view() const
+{
+    return ui->_view;
 }
 
 CentralWidget::~CentralWidget()
 {
-    delete _view;
+    delete ui;
 }
-
-void CentralWidget::checkSubName()
-{
-    if(!_lineNameSub.text().isEmpty())
-        _btnAddSub.setEnabled(true);
-    else
-    {
-        _btnAddSub.setEnabled(false);
-    }
-}
-
-void CentralWidget::sendSignal()
-{
-    if(sender() == &_btnAddSub)
-    {
-        emit SubName(_lineNameSub.text());
-    }
-    else if (sender() == &_btnAddEmployee)
-    {
-        QVariant curSubName(_view->model()->itemData(_view->selectionModel()->selectedIndexes().first()).first());
-        emit curSub(curSubName.toString());
-        emit addEmployee();
-    }
-
-
-}
-
-void CentralWidget::setBtn()
-{
-    if(_view->selectionModel()->hasSelection())
-    {
-        _btnAddEmployee.setEnabled(true);
-    }
-    else
-    {
-        _btnAddEmployee.setEnabled(false);
-    }
-    update();
-}
-
-
-QColumnView *CentralWidget::view() const
-{
-    return _view;
-}
-
-

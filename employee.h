@@ -7,8 +7,7 @@
 class Employee : public QStandardItem
 {
 public:
-    Employee();
-    Employee(QString name, QString surname, QString patronymic, QString position, int salary);
+    Employee(QString name = "", QString surname = "", QString middleName ="", QString function = "", int salary = 0);
 
     QString name() const;
     void setName(const QString &value);
@@ -16,32 +15,27 @@ public:
     QString surname() const;
     void setSurname(const QString &value);
 
-    QString patronymic() const;
-    void setPatronymic(const QString &value);
+    QString middleName() const;
+    void setMiddleName(const QString &value);
 
-    QString position() const;
-    void setPosition(const QString &value);
+    QString function() const;
+    void setFunction(const QString &value);
 
     int salary() const;
     void setSalary(int value);
 
-
-    int getSubdivisionId() const;
-    void setSubdivisionId(int subdivisionId);
-
-    int id() const;
-    void setId(int id);
+    QString id() const;
+    void setId(QString id);
+    void setData(const QVariant &value, int role = Qt::UserRole + 1);
 
 private:
     QString _name;
     QString _surname;
-    QString _patronymic;
-    QString _position;
+    QString _middleName;
+    QString _function;
+    QString _id;
 
-    int _subdivisionId;
-    int _id;
     int _salary;
-
 };
 
 #endif // EMPLOYEE_H

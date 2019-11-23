@@ -1,45 +1,49 @@
 #include "company.h"
 
-Company::Company(QString name)
+Company::Company() : QStandardItemModel()
 {
-    _name = name;
-    _subdivisions = new QMap<QString , Subdivision*>();
+    QStringList list;
+    list << "Отдел" << "Должность" << "Зарплата";
+    setHorizontalHeaderLabels(list);
+
+    _departments = new QMap<QString , Department*>();
 }
 
-QMap<QString, Subdivision *> *Company::subdivisions() const
+QMap<QString, Department *> *Company::departments() const
 {
-    return _subdivisions;
+    return _departments;
 }
 
-Subdivision* Company::addSubdivision(QString name)
+Department* Company::addDepartment(QString name)
 {
-    Subdivision * subdivision = new Subdivision(name);
-    _subdivisions->insert(name, subdivision);
-    this->appendRow(subdivision);
+    Department * department = new Department(name);
 
-    return  subdivision;
+    _departments->insert(name, department);
+
+    this->appendRow(department);
+    return  department;
 }
 
-void Company::removeSubdivision(QString name)
+void Company::removeDepartment(QString name)
 {
-    int row = _subdivisions->value(name)->row();
+    int row = _departments->value(name)->row();
     this->removeRow(row);
-    _subdivisions->remove(name);
+    _departments->remove(name);
 }
 
 int Company::size() const
 {
-    return _subdivisions->size();
+    return _departments->size();
 }
 
 Company::~Company()
 {
-    QMap<QString, Subdivision*>::iterator it = _subdivisions->begin();
-    while(it != _subdivisions->end())
+    QMapIterator<QString, Department*> it (*departments());
+
+    while(it.hasNext())
     {
-        delete it.value();
-        ++it;
+        removeDepartment(it.next().key());
     }
-    _subdivisions->clear();
-    delete _subdivisions;
+    _departments->clear();
+    delete _departments;
 }

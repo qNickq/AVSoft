@@ -2,29 +2,25 @@
 #define CMDADDEMPLOYEE_H
 
 #include "command.h"
-#include "subdivision.h"
 #include "company.h"
+
 class CmdAddEmployee : public Command
 {
 private:
-    Company* _company;
-    Subdivision* _subdivision;
-    Employee* _employee;
-
-    QString _subname;
+    QString _depName;
     QString _name;
     QString _surname;
-    QString _patronymic;
-    QString _position;
+    QString _middleName;
+    QString _function;
+    QString _id;
 
     int _salary;
 
 public:
-    CmdAddEmployee(Company* company, QString subname,QString name,QString surname, QString patronymic, QString position , int salary);
+    CmdAddEmployee(Company* company, Department* department,QString name,QString surname, QString middleName, QString function , int salary);
 
     void execute();
     void undo();
-    void redo();
 };
 
 #endif // CMDADDEMPLOYEE_H

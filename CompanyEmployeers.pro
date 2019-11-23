@@ -18,27 +18,39 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     centralwidget.cpp \
     cmdaddemployee.cpp \
-    cmdaddsub.cpp \
+    cmdadddepartment.cpp \
+    cmdeditemployee.cpp \
+    cmdeditdepartment.cpp \
+    cmdremoveemployee.cpp \
+    cmdremovedepartment.cpp \
     command.cpp \
     company.cpp \
     employee.cpp \
+    employeeeditor.cpp \
     main.cpp \
     mainwindow.cpp \
-    newemployeewidget.cpp \
-    subdivision.cpp
+    department.cpp
 
 HEADERS += \
     centralwidget.h \
     cmdaddemployee.h \
-    cmdaddsub.h \
+    cmdadddepartment.h \
+    cmdeditemployee.h \
+    cmdeditdepartment.h \
+    cmdremoveemployee.h \
+    cmdremovedepartment.h \
     command.h \
     company.h \
     employee.h \
+    employeeeditor.h \
     mainwindow.h \
-    newemployeewidget.h \
-    subdivision.h
+    department.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+FORMS += \
+    centralwidget.ui \
+    employeeeditor.ui

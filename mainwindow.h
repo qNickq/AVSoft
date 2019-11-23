@@ -2,11 +2,19 @@
 #define MAINWINDOW_H
 
 #include "company.h"
-#include "cmdaddsub.h"
-#include "cmdaddemployee.h"
-#include "newemployeewidget.h"
-#include "centralwidget.h"
 
+#include "cmdadddepartment.h"
+#include "cmdremovedepartment.h"
+
+#include "cmdaddemployee.h"
+#include "cmdremoveemployee.h"
+
+#include "cmdeditemployee.h"
+#include "cmdeditdepartment.h"
+
+
+#include "centralwidget.h"
+#include "employeeeditor.h"
 
 #include <QMainWindow>
 #include <QObject>
@@ -22,38 +30,48 @@ public:
      MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void executeCommand(Command* command);
-    void undoCommand();
-    void redoCommand();
-    void clearHistory();
 public slots:
-    void addSubdivision(QString name);
-    void addEmployee(QString name, QString surname, QString patronymic, QString position, int salary);
+    void setCurrentDep(const QModelIndex &index);
+    void setCurrentEmp(const QModelIndex &index);
+
+    void addDepartment(QString name);
+    void editDepartment(QString name);
+    void removeDepartment();
+
+    void addEmployee();
+    void editCompany(const QModelIndex &index);
+    void removeEmployee();
+
+    void openFile();
+
     void openNewCompanyDialog();
-    void openCompany();
-    void newCompany(QString);
-    void setCurSub(QString currentSubName);
+    void newCompany();
+
+
     void openNewEployeeDialog();
 
 private:
 
     Company* _company;
+    Department * _currentDep;
+    Employee * _currentEmp;
 
     QList<Command*> _history;
     QListIterator<Command*> _iterator;
 
     CentralWidget* _centralWidget;
+    EmployeeEditor * _employeeEditor;
 
-    NewEmployeeWidget* _newEmployeeWidget;
-    Subdivision * _currentSub;
     QUrl _pathXML;
 
-    void createActions();
-    void createStatusBar();
+    void executeCommand(Command* command);
+    void undoCommand();
+    void redoCommand();
+    void clearHistory();
 
-    bool maybeSave();
+    void createActions();
+    void editEmployee();
     void saveFile();
-    void setCurrentFile(const QString &fileName);
 };
 
 #endif // MAINWINDOW_H

@@ -1,17 +1,7 @@
 #include "command.h"
 
-
-Command::Command()
-{
-
-}
-
-void Command::redo()
-{
-
-}
-
-void Command::undo()
+Command::Command(Company *company, Department *department, Employee* employee) :
+    _company(company), _department(department), _employee(employee)
 {
 
 }

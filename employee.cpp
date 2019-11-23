@@ -1,18 +1,15 @@
 #include "employee.h"
 
-Employee::Employee()
+Employee::Employee(QString name, QString surname, QString middleName, QString function, int salary)
+    :QStandardItem(surname + ' ' + name + ' ' + middleName)
 {
-}
 
-Employee::Employee(QString name, QString surname, QString patronymic, QString position, int salary)
-    :QStandardItem(name + ' ' + surname + ' ' + patronymic)
-{
     _name = name;
     _surname = surname;
-    _patronymic = patronymic;
-    _position = position;
+    _middleName = middleName;
+    _function = function;
     _salary = salary;
-
+    _id = (name+surname+middleName+function).trimmed();
 }
 
 QString Employee::name() const
@@ -35,24 +32,24 @@ void Employee::setSurname(const QString &value)
     _surname = value;
 }
 
-QString Employee::patronymic() const
+QString Employee::middleName() const
 {
-    return _patronymic;
+    return _middleName;
 }
 
-void Employee::setPatronymic(const QString &value)
+void Employee::setMiddleName(const QString &value)
 {
-    _patronymic = value;
+    _middleName = value;
 }
 
-QString Employee::position() const
+QString Employee::function() const
 {
-    return _position;
+    return _function;
 }
 
-void Employee::setPosition(const QString &value)
+void Employee::setFunction(const QString &value)
 {
-    _position = value;
+    _function = value;
 }
 
 int Employee::salary() const
@@ -65,23 +62,28 @@ void Employee::setSalary(int value)
     _salary = value;
 }
 
-int Employee::getSubdivisionId() const
-{
-    return _subdivisionId;
-}
-
-void Employee::setSubdivisionId(int subdivisionId)
-{
-    _subdivisionId = subdivisionId;
-}
-
-int Employee::id() const
+QString Employee::id() const
 {
     return _id;
 }
 
-void Employee::setId(int id)
+void Employee::setId(QString id)
 {
     _id = id;
+}
+
+void Employee::setData(const QVariant &value, int role)
+{
+    QString s = _surname + ' ' + _name + ' ' + _middleName;
+
+    QModelIndex in(model()->index(row() , 1, parent()->index()));
+    model()->setData(in, _function, Qt::DisplayRole);
+
+    QModelIndex in2(model()->index(row() , 2, parent()->index()));
+    model()->setData(in2, _salary, Qt::DisplayRole);
+
+    QStandardItem::setData(s, Qt::DisplayRole);
+
+    emitDataChanged();
 }
 
