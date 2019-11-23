@@ -1,30 +1,32 @@
 #include "cmdaddemployee.h"
 
-CmdAddEmployee::CmdAddEmployee(Company * company,QString subname, QString name, QString surname, QString patronymic, QString position, int salary) : Command()
+CmdAddEmployee::CmdAddEmployee(Company * company, Department * department, QString name, QString surname, QString middleName, QString function, int salary)
+    : Command(company, department)
 {
-    _company = company;
-    _subname = subname;
+    _depName = department->name();
     _name = name;
     _surname = surname;
-    _patronymic = patronymic;
-    _position = position;
+    _middleName = middleName;
+    _function = function;
     _salary = salary;
+    _id = name + surname + middleName + function;
 }
 
 void CmdAddEmployee::execute()
 {
-    _subdivision = _company->subdivisions()->value(_subname);
-    _employee = _subdivision->addEmployee(_name, _surname, _patronymic, _position,_salary);
+
+    _department = _company->departments()->value(_depName);
+    if(!_department->employees()->count(_id))
+    {
+        _employee = _department->addEmployee(_name, _surname, _middleName, _function, _salary);
+    }
 }
 
 void CmdAddEmployee::undo()
 {
-
-    _subdivision->removeEmployee(_employee);
+    if(_department->employees()->count(_id))
+    {
+        _department->removeEmployee(_id);
+    }
 }
 
-void CmdAddEmployee::redo()
-{
-    _subdivision = _company->subdivisions()->value(_subname);
-    _employee = _subdivision->addEmployee(_name, _surname, _patronymic, _position,_salary);
-}
