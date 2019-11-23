@@ -4,27 +4,29 @@
 #include <QObject>
 #include <QStandardItemModel>
 
-#include "subdivision.h"
+#include "department.h"
 
 class Company : public QStandardItemModel
 {
     Q_OBJECT
+
+private:
+    QMap<QString , Department*> *_departments;
+
 public:
+    Company();
 
-    Company(QString name);
+    Department *addDepartment(QString name);
 
-    Subdivision *addSubdivision(QString name);
-    void removeSubdivision(QString name);
+    void removeDepartment(QString name);
 
+    QMap<QString, Department *> *departments() const;
     int size() const;
 
     ~Company();
 
-    QMap<QString, Subdivision *> *subdivisions() const;
 
-private:
-    QMap<QString , Subdivision*> *_subdivisions;
-    QString _name;
+
 };
 
 #endif // COMAPNY_H
