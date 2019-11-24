@@ -21,7 +21,7 @@ CentralWidget::CentralWidget(QWidget *parent) : QWidget(parent), ui(new Ui::Cent
 
 void CentralWidget::sendAddDep()
 {
-    QString s = ui->_lineNameDep->text();
+    QString s = ui->_lineNameDep->text().trimmed();
     if(!s.isEmpty())
     {
         emit addDepartment(s);

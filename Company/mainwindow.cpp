@@ -349,8 +349,9 @@ void MainWindow::addDepartment(QString name)
     {
         CmdAddDepartment * cmd = new CmdAddDepartment (_company, name);
         executeCommand(cmd);
+        _centralWidget->setDep(_currentDep->name(), _currentDep->countEmp(), _currentDep->avgSalary());
     }
-    _centralWidget->setDep(_currentDep->name(), _currentDep->countEmp(), _currentDep->avgSalary());
+
 }
 
 void MainWindow::editDepartment(QString name)
