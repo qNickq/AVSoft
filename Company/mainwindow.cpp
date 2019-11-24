@@ -90,13 +90,28 @@ void MainWindow::addEmployee()
     if(_employeeEditor != nullptr)
     {
         _employeeEditor->disconnect();
-        _employeeEditor->deleteLater();
+        delete _employeeEditor;
+    }
+}
+
+void MainWindow::editCompany(const QModelIndex &index)
+{
+    QStandardItem *item = _company->itemFromIndex(index.siblingAtColumn(0));
+
+    if(index.parent() != QModelIndex())
+    {
+        _currentEmp = static_cast<Employee*>(item);
+        _employeeEditor = new EmployeeEditor(_currentEmp);
+        _employeeEditor->show();
+
+        connect(_employeeEditor, &EmployeeEditor::accepted, this, &MainWindow::editEmployee);
     }
 }
 
 void MainWindow::editEmployee()
 {
     QStringList data = _employeeEditor->getData();
+
     CmdEditEmployee * cmd = new CmdEditEmployee(_company, _currentDep, _currentEmp, data[0], data[1], data[2], data[3], data[4].toInt());
     executeCommand(cmd);
 
@@ -105,6 +120,8 @@ void MainWindow::editEmployee()
         _employeeEditor->disconnect();
         _employeeEditor->deleteLater();
     }
+
+    _centralWidget->setDep(_currentDep->name(), _currentDep->countEmp(), _currentDep->avgSalary());
 }
 
 void MainWindow::removeEmployee()
@@ -116,6 +133,7 @@ void MainWindow::removeEmployee()
 
 void MainWindow::openFile()
 {
+
     _pathXML = QFileDialog::getOpenFileName(this, tr("Open File"),
                                             ".",
                                             tr("XML files (*.xml)"));
@@ -126,6 +144,13 @@ void MainWindow::openFile()
     {
 
         QXmlStreamReader reader(&xmlFile);
+        QString depName;
+        QString name;
+        QString surname;
+        QString middleName;
+        QString function;
+        int salary = 0;
+
         while (!reader.atEnd() && reader.readNext())
         {
             if(reader.isStartElement())
@@ -136,16 +161,18 @@ void MainWindow::openFile()
                 }
                 else if(reader.name() == "department")
                 {
-                    QString depName = reader.attributes().value("name").toString();
-                    _currentDep = _company->addDepartment(depName);
+                    depName = reader.attributes().value("name").toString();
+                    if(depName.isEmpty())
+                    {
+                        _currentDep = _company->addDepartment("Неизвестный отдел");
+                    }
+                    else
+                    {
+                        _currentDep = _company->addDepartment(depName);
+                    }
                 }
                 else if(reader.name() == "employment")
                 {
-                    QString name;
-                    QString surname;
-                    QString middleName;
-                    QString function;
-                    int salary = 0;
 
                     for (int i = 0; i < 5; ++i)
                     {
@@ -154,6 +181,7 @@ void MainWindow::openFile()
                         if( reader.name() == "name")
                         {
                             name = reader.readElementText();
+                            if(name.isEmpty()) name = "Исправить";
                         }
                         else if ( reader.name() == "surname")
                         {
@@ -277,6 +305,11 @@ void MainWindow::openNewCompanyDialog()
 
 void MainWindow::newCompany()
 {
+    if(!_history.isEmpty())
+    {
+        clearHistory();
+    }
+
     _company = new Company();
 
     _centralWidget->view()->setModel(_company);
@@ -305,19 +338,6 @@ void MainWindow::setCurrentEmp(const QModelIndex &index)
     _currentEmp = static_cast<Employee*>(_company->itemFromIndex(index));
 }
 
-void MainWindow::editCompany(const QModelIndex &index)
-{
-    QStandardItem *item = _company->itemFromIndex(index.siblingAtColumn(0));
-
-    if(index.parent() != QModelIndex())
-    {
-        _currentEmp = static_cast<Employee*>(item);
-        _employeeEditor = new EmployeeEditor(_currentEmp);
-        _employeeEditor->show();
-
-        connect(_employeeEditor, &EmployeeEditor::accepted, this, &MainWindow::editEmployee);
-    }
-}
 
 void MainWindow::addDepartment(QString name)
 {
@@ -330,12 +350,14 @@ void MainWindow::addDepartment(QString name)
         CmdAddDepartment * cmd = new CmdAddDepartment (_company, name);
         executeCommand(cmd);
     }
+    _centralWidget->setDep(_currentDep->name(), _currentDep->countEmp(), _currentDep->avgSalary());
 }
 
 void MainWindow::editDepartment(QString name)
 {
     CmdEditDepartment * cmd = new CmdEditDepartment(_company, _currentDep, name);
     executeCommand(cmd);
+    _centralWidget->setDep(_currentDep->name(), _currentDep->countEmp(), _currentDep->avgSalary());
 }
 
 void MainWindow::removeDepartment()

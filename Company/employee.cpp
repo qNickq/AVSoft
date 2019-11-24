@@ -9,7 +9,7 @@ Employee::Employee(QString name, QString surname, QString middleName, QString fu
     _middleName = middleName;
     _function = function;
     _salary = salary;
-    _id = (name+surname+middleName+function).trimmed();
+    _id = name+surname+middleName+function;
 }
 
 QString Employee::name() const
@@ -74,15 +74,13 @@ void Employee::setId(QString id)
 
 void Employee::setData(const QVariant &value, int role)
 {
-    QString s = _surname + ' ' + _name + ' ' + _middleName;
-
     QModelIndex in(model()->index(row() , 1, parent()->index()));
-    model()->setData(in, _function, Qt::DisplayRole);
+    model()->setData(in, _function, role);
 
     QModelIndex in2(model()->index(row() , 2, parent()->index()));
-    model()->setData(in2, _salary, Qt::DisplayRole);
+    model()->setData(in2, _salary, role);
 
-    QStandardItem::setData(s, Qt::DisplayRole);
+    QStandardItem::setData(value, role);
 
     emitDataChanged();
 }

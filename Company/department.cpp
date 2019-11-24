@@ -92,6 +92,36 @@ void Department::removeEmployee(QString id)
     _employees->remove(id);
 }
 
+void Department::editEmployee(QString id, QString name, QString surname, QString middleName, QString function, int salary)
+{
+    Employee * emp = _employees->value(id);
+
+    _salary -= emp->salary();
+    _salary += salary;
+
+
+    emp->setName(name);
+    emp->setSurname(surname);
+    emp->setMiddleName(middleName);
+    emp->setFunction(function);
+    emp->setSalary(salary);
+
+    _avgSalary = _salary / _countEmp;
+
+    QString newId = name + surname + middleName + function;
+
+    emp->setId(newId);
+
+    if(emp)
+    {
+        _employees->remove(id);
+    }
+    _employees->insert(newId, emp);
+
+    emp->setData(surname + ' ' + name + ' ' + middleName, Qt::DisplayRole);
+
+}
+
 QMap<QString, Employee *> *Department::employees() const
 {
     return _employees;

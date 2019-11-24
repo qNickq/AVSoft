@@ -35,5 +35,8 @@ void CmdRemoveDepartment::undo()
 
 void CmdRemoveDepartment::execute()
 {
-    _company->removeDepartment(_departmentName);
+    if(_company->departments()->count(_departmentName))
+    {
+        _company->removeDepartment(_departmentName);
+    }
 }

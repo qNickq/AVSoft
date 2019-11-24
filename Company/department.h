@@ -20,6 +20,8 @@ public:
 
     void removeEmployee(QString id);
 
+    void editEmployee(QString id, QString name, QString surname, QString middleName, QString function, int salary);
+
     QString name() const;
 
     void setName(QString name);
