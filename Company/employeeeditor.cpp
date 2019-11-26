@@ -15,7 +15,7 @@ EmployeeEditor::EmployeeEditor(Employee *emp, QWidget *parent) :
     ui->_lineSurname->setFocus();
 
     ui->_lineMiddleName->setValidator(new QRegExpValidator(QRegExp("[A-Я]{0,20}",Qt::CaseInsensitive)));
-    ui->_lineSalary->setValidator(new QRegExpValidator(QRegExp("[1-9]{1}[0-9]{2,10}")));
+    ui->_lineSalary->setValidator(new QRegExpValidator(QRegExp("[1-9]{1}[0-9]{2,15}")));
 
     if(_employee != nullptr)
     {
