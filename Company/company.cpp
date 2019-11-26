@@ -3,7 +3,7 @@
 Company::Company() : QStandardItemModel()
 {
     QStringList list;
-    list << "Отдел" << "Должность" << "Зарплата";
+    list << "Отдел" << "Должность" << "Зарплата" << "Средняя ЗП";
     setHorizontalHeaderLabels(list);
 
     _departments = new QMap<QString , Department*>();
@@ -21,6 +21,10 @@ Department* Company::addDepartment(QString name)
     _departments->insert(name, department);
 
     this->appendRow(department);
+
+    QModelIndex in(index(department->row() , 3));
+    setData(in, department->avgSalary(), Qt::DisplayRole);
+
     return  department;
 }
 

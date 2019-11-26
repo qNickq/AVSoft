@@ -3,13 +3,13 @@
 
 #include <QMap>
 #include <QObject>
+
 #include "employee.h"
 
 class Department : public QStandardItem
 {
 public:
     Department(QString name);
-    Department(const Department& department);
     ~Department();
 
     int avgSalary() const;

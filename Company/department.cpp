@@ -11,24 +11,6 @@ Department::Department(QString name) : QStandardItem(name)
     setColumnCount(3);
 }
 
-Department::Department(const Department &department)
-{
-    _name = department.name();
-    _countEmp = department.countEmp();
-    _avgSalary = department.avgSalary();
-
-    if(_countEmp != 0)
-    {
-        _salary  = department.avgSalary() / department.countEmp();
-    }
-    else
-    {
-        _salary = 0;
-    }
-
-    _employees = new QMap<QString, Employee*>(*department.employees());
-}
-
 int Department::avgSalary() const
 {
     return _avgSalary;
@@ -44,6 +26,7 @@ Employee* Department::addEmployee(QString name, QString surname, QString middleN
 {
     Employee *employee = new Employee(name, surname, middleName, function, salary);
 
+
     _employees->insert(employee->id(), employee);
 
     _salary += salary;
@@ -51,12 +34,10 @@ Employee* Department::addEmployee(QString name, QString surname, QString middleN
     _avgSalary = _salary / _countEmp;
 
     this->appendRow(employee);
+    employee->setData(surname + ' ' + name + ' ' + middleName, Qt::DisplayRole);
 
-    QModelIndex in(model()->index(employee->row() , 1, index()));
-    model()->setData(in, employee->function(), Qt::DisplayRole);
-
-    QModelIndex in2(model()->index(employee->row() , 2, index()));
-    model()->setData(in2, employee->salary(), Qt::DisplayRole);
+    QModelIndex in(model()->index(row() , 3));
+    model()->setData(in, _avgSalary, Qt::DisplayRole);
 
     return employee;
 }
@@ -79,13 +60,19 @@ void Department::removeEmployee(QString id)
     _salary -= emp->salary();
     _countEmp--;
 
-    if(_countEmp <= 0)
+    if(_countEmp)
     {
-        _avgSalary = 0;
+        _avgSalary = _salary / _countEmp;
     }
     else
     {
-        _avgSalary = _salary / _countEmp;
+        _avgSalary = 0;
+    }
+
+    if(model()!= nullptr)
+    {
+        QModelIndex in(model()->index(row() , 3));
+        model()->setData(in, _avgSalary, Qt::DisplayRole);
     }
     this->removeRow(emp->row());
 
@@ -99,7 +86,6 @@ void Department::editEmployee(QString id, QString name, QString surname, QString
     _salary -= emp->salary();
     _salary += salary;
 
-
     emp->setName(name);
     emp->setSurname(surname);
     emp->setMiddleName(middleName);
@@ -107,6 +93,9 @@ void Department::editEmployee(QString id, QString name, QString surname, QString
     emp->setSalary(salary);
 
     _avgSalary = _salary / _countEmp;
+
+    QModelIndex in(model()->index(row() , 3));
+    model()->setData(in, _avgSalary, Qt::DisplayRole);
 
     QString newId = name + surname + middleName + function;
 
