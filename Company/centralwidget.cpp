@@ -22,6 +22,7 @@ CentralWidget::CentralWidget(QWidget *parent) : QWidget(parent), ui(new Ui::Cent
 void CentralWidget::sendAddDep()
 {
     QString s = ui->_lineNameDep->text().trimmed();
+
     if(!s.isEmpty())
     {
         emit addDepartment(s);
@@ -30,7 +31,7 @@ void CentralWidget::sendAddDep()
 
 void CentralWidget::sendEditDep()
 {
-    QString s = ui->_lineName->text();
+    QString s = ui->_lineName->text().trimmed();
 
     if(!s.isEmpty())
     {
@@ -79,7 +80,7 @@ QModelIndex CentralWidget::currentIndex() const
 
 void CentralWidget::setDep(QString name , int count, int salary)
 {
-    ui->_lineName->setText(name);
+    ui->_lineName->setText(name.trimmed());
     ui->_lCount->setText(QString::number(count));
     ui->_lSalary->setText(QString::number(salary));
 }

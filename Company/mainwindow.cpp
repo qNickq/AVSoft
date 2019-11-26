@@ -161,7 +161,8 @@ void MainWindow::openFile()
                 }
                 else if(reader.name() == "department")
                 {
-                    depName = reader.attributes().value("name").toString();
+                    depName = reader.attributes().value("name").toString().trimmed();
+
                     if(depName.isEmpty())
                     {
                         _currentDep = _company->addDepartment("Неизвестный отдел");
@@ -338,27 +339,32 @@ void MainWindow::setCurrentEmp(const QModelIndex &index)
     _currentEmp = static_cast<Employee*>(_company->itemFromIndex(index));
 }
 
-
 void MainWindow::addDepartment(QString name)
 {
-    if(_company->departments()->count(name) != 0)
-    {
-        this->statusBar()->showMessage("This name is already exists");
-    }
-    else
+    if(!_company->departments()->count(name))
     {
         CmdAddDepartment * cmd = new CmdAddDepartment (_company, name);
         executeCommand(cmd);
-        _centralWidget->setDep(_currentDep->name(), _currentDep->countEmp(), _currentDep->avgSalary());
+    }
+    else
+    {
+        this->statusBar()->showMessage("Такой отдел уже существует!");
     }
 
 }
 
 void MainWindow::editDepartment(QString name)
 {
-    CmdEditDepartment * cmd = new CmdEditDepartment(_company, _currentDep, name);
-    executeCommand(cmd);
-    _centralWidget->setDep(_currentDep->name(), _currentDep->countEmp(), _currentDep->avgSalary());
+    if(!_company->departments()->count(name))
+    {
+        CmdEditDepartment * cmd = new CmdEditDepartment(_company, _currentDep, name);
+        executeCommand(cmd);
+        _centralWidget->setDep(_currentDep->name(), _currentDep->countEmp(), _currentDep->avgSalary());
+    }
+    else
+    {
+        this->statusBar()->showMessage("Такой отдел уже существует!");
+    }
 }
 
 void MainWindow::removeDepartment()
@@ -382,8 +388,10 @@ void MainWindow::undoCommand()
         if(_iterator.hasPrevious())
         {
             _iterator.previous()->undo();
+             _centralWidget->setDep(_currentDep->name(), _currentDep->countEmp(), _currentDep->avgSalary());
         }
     }
+
 }
 
 void MainWindow::redoCommand()
@@ -393,8 +401,10 @@ void MainWindow::redoCommand()
         if(_iterator.hasNext())
         {
             _iterator.next()->execute();
+            _centralWidget->setDep(_currentDep->name(), _currentDep->countEmp(), _currentDep->avgSalary());
         }
     }
+
 }
 
 void MainWindow::clearHistory()
