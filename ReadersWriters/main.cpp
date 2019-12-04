@@ -2,7 +2,7 @@
 #include <pthread.h>
 
 #define NUM_READERS 10
-#define NUM_WRITERS 100
+#define NUM_WRITERS 1000
 
 void * read(void *);
 void * write(void *);
@@ -18,11 +18,10 @@ static int writers = 0;
 
 static unsigned long size_buffer = 0;
 
-
 int main()
 {
     char* buff = new char[0];
-
+    printf("Main: %p\n", buff);
     pthread_t threadsR[NUM_READERS];
     pthread_t threadsW[NUM_WRITERS];
 
@@ -124,8 +123,9 @@ void * write(void * buffer)
     size_buffer++;
 
     char s = '$';
-
+    printf("write(%3d)(1/2): %p\n", size_buffer, buffer);
     buffer = realloc(buffer, size_buffer + sizeof(s));
+    printf("write(%3d)(2/2): %p\n", size_buffer, buffer);
 
     static_cast<char*>(buffer)[size_buffer - 1] = s;
 
