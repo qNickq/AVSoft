@@ -1,39 +1,47 @@
 #include <iostream>
 #include <pthread.h>
 
-#define NUM_READERS 10
-#define NUM_WRITERS 1000
+#define NUM_READERS 20
+#define NUM_WRITERS 10000
 
 void * read(void *);
 void * write(void *);
 
+struct shared
+{
+    void * data = nullptr;
+    unsigned long size_buffer = 0;
+};
+
 static pthread_cond_t readingEnd;
 static pthread_cond_t writingEnd;
 
-static pthread_mutex_t _mutexR;
-static pthread_mutex_t _mutexW;
+static pthread_mutex_t mutexR;
+static pthread_mutex_t mutexW;
 
 static int readers = 0;
 static int writers = 0;
 
-static unsigned long size_buffer = 0;
 
 int main()
 {
-    char* buff = new char[0];
-    printf("Main: %p\n", buff);
+    setlocale(LC_CTYPE, "Russian");
+
+
+    shared *buff = new shared;
+
     pthread_t threadsR[NUM_READERS];
     pthread_t threadsW[NUM_WRITERS];
 
-    pthread_mutex_init(&_mutexR, nullptr);
-    pthread_mutex_init(&_mutexW, nullptr);
+    pthread_mutex_init(&mutexR, nullptr);
+    pthread_mutex_init(&mutexW, nullptr);
 
     pthread_cond_init(&writingEnd, nullptr);
     pthread_cond_init(&readingEnd, nullptr);
 
     for(int i = 0; i < NUM_WRITERS; ++i)
     {
-        int thread = pthread_create(&threadsW[i], nullptr, write, buff);
+        int thread = pthread_create(&threadsW[i], nullptr, write,  &buff);
 
         if(thread != 0)
         {
@@ -71,9 +79,9 @@ int main()
         }
     }
 
-    printf("Буфер записи : %s\n", buff);
+    printf("Buffer : %s\n", buff);
 
-    delete[] buff;
+    //free(buff);
 
     return 0;
 }
@@ -81,16 +89,15 @@ int main()
 
 void * read(void * buffer)
 {
-    pthread_mutex_lock(&_mutexR);
+    pthread_mutex_lock(&mutexR);
 
     readers++;
 
     if(writers != 0)
     {
-        pthread_cond_wait(&writingEnd, &_mutexR);
+        pthread_cond_wait(&writingEnd, &mutexR);
     }
-
-     printf("Читаталь -> %s\n", static_cast<char*>(buffer));
+     printf("Reader -> %s\n", buffer);
 
     readers--;
 
@@ -98,7 +105,7 @@ void * read(void * buffer)
     {
         pthread_cond_signal(&readingEnd);
     }
-    pthread_mutex_unlock(&_mutexR);
+    pthread_mutex_unlock(&mutexR);
 
 
     return nullptr;
@@ -106,37 +113,43 @@ void * read(void * buffer)
 
 void * write(void * buffer)
 {      
-    pthread_mutex_lock(&_mutexW);
+
+    pthread_mutex_lock(&mutexW);
 
     writers++;
 
-    pthread_mutex_lock(&_mutexR);
+    pthread_mutex_lock(&mutexR);
 
     if(writers != 1)
     {
         if(readers != 0)
         {
-            pthread_cond_wait(&readingEnd, &_mutexW);
+            pthread_cond_wait(&readingEnd, &mutexW);
         }
     }
-
-    size_buffer++;
+    shared* str = static_cast<shared*>(buffer);
+    unsigned long size = str->size_buffer++;
 
     char s = '$';
-    printf("write(%3d)(1/2): %p\n", size_buffer, buffer);
-    buffer = realloc(buffer, size_buffer + sizeof(s));
-    printf("write(%3d)(2/2): %p\n", size_buffer, buffer);
 
-    static_cast<char*>(buffer)[size_buffer - 1] = s;
+    buffer = new char[size];
 
-    printf("Писатель -> %c\n", s);
+    if(buffer != nullptr)
+    {
+        static_cast<char*>(str->data)[size] = s;
+    }
+    else
+    {
+        return nullptr;
+    }
+    printf("Writer -> %c\n", s);
 
     writers--;
 
     pthread_cond_broadcast(&writingEnd);
 
-    pthread_mutex_unlock(&_mutexR);
-    pthread_mutex_unlock(&_mutexW);
+    pthread_mutex_unlock(&mutexR);
+    pthread_mutex_unlock(&mutexW);
 
     return nullptr;
 }
