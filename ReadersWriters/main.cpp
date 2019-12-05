@@ -1,17 +1,18 @@
 #include <iostream>
 #include <pthread.h>
 
-#define NUM_READERS 20
-#define NUM_WRITERS 10000
+#define NUM_READERS 12
+#define NUM_WRITERS 100
+
+struct Shared
+{
+    void * data = nullptr;
+    unsigned long size = 0;
+};
 
 void * read(void *);
 void * write(void *);
 
-struct shared
-{
-    void * data = nullptr;
-    unsigned long size_buffer = 0;
-};
 
 static pthread_cond_t readingEnd;
 static pthread_cond_t writingEnd;
@@ -25,10 +26,8 @@ static int writers = 0;
 
 int main()
 {
-    setlocale(LC_CTYPE, "Russian");
 
-
-    shared *buff = new shared;
+    Shared *buff = new Shared();
 
     pthread_t threadsR[NUM_READERS];
     pthread_t threadsW[NUM_WRITERS];
@@ -39,55 +38,47 @@ int main()
     pthread_cond_init(&writingEnd, nullptr);
     pthread_cond_init(&readingEnd, nullptr);
 
+    for(int i = 0, k = 0; i < NUM_WRITERS || k < NUM_READERS; ++i, ++k)
+    {
+        if(i < NUM_WRITERS)
+        {
+            int threadW = pthread_create(&threadsW[i], nullptr, write,  buff);
+
+            if(threadW != 0)
+            {
+                printf("Thread cant be created!");
+                return -1;
+            }
+        }
+        if(k < NUM_READERS)
+        {
+            int threadR = pthread_create(&threadsR[k], nullptr, read,  buff);
+
+            if(threadR != 0)
+            {
+                printf("Thread cant be created!");
+                return -1;
+            }
+        }
+    }
+
+
     for(int i = 0; i < NUM_WRITERS; ++i)
     {
-        int thread = pthread_create(&threadsW[i], nullptr, write,  &buff);
-
-        if(thread != 0)
-        {
-            return 1;
-        }
+        pthread_join(threadsW[i], nullptr);
     }
-
     for(int i = 0; i < NUM_READERS; ++i)
     {
-        int thread = pthread_create(&threadsR[i], nullptr, read, buff);
-
-        if (thread != 0)
-        {
-            return 1;
-        }
+        pthread_join(threadsR[i], nullptr);
     }
 
-    for(int i = 0; i < NUM_READERS; ++i)
-    {
-        int success = pthread_join(threadsR[i], nullptr);
-
-        if(success != 0)
-        {
-            return 1;
-        }
-    }
-
-    for(int i = 0; i< NUM_WRITERS; ++i)
-    {
-        int success = pthread_join(threadsW[i], nullptr);
-
-        if(success != 0)
-        {
-            return 1;
-        }
-    }
-
-    printf("Buffer : %s\n", buff);
-
-    //free(buff);
+    printf("Buffer size: %lu\n", buff->size);
 
     return 0;
 }
 
 
-void * read(void * buffer)
+void* read(void* buffer)
 {
     pthread_mutex_lock(&mutexR);
 
@@ -97,7 +88,10 @@ void * read(void * buffer)
     {
         pthread_cond_wait(&writingEnd, &mutexR);
     }
-     printf("Reader -> %s\n", buffer);
+
+    Shared *str = static_cast<Shared*>(buffer);
+
+    printf("Reader -> %s\n", static_cast<char*>(str->data));
 
     readers--;
 
@@ -113,6 +107,7 @@ void * read(void * buffer)
 
 void * write(void * buffer)
 {      
+    char s = '$';
 
     pthread_mutex_lock(&mutexW);
 
@@ -127,21 +122,15 @@ void * write(void * buffer)
             pthread_cond_wait(&readingEnd, &mutexW);
         }
     }
-    shared* str = static_cast<shared*>(buffer);
-    unsigned long size = str->size_buffer++;
 
-    char s = '$';
+    Shared *str = static_cast<Shared*>(buffer);
 
-    buffer = new char[size];
+    ++str->size;
 
-    if(buffer != nullptr)
-    {
-        static_cast<char*>(str->data)[size] = s;
-    }
-    else
-    {
-        return nullptr;
-    }
+    str->data = realloc(str->data, str->size);
+
+    (static_cast<char*>(str->data))[str->size - 1] = s;
+
     printf("Writer -> %c\n", s);
 
     writers--;
