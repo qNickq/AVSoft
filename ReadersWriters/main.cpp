@@ -91,7 +91,7 @@ void* read(void* buffer)
 
     Shared *str = static_cast<Shared*>(buffer);
 
-    printf("Reader -> %s\n", static_cast<char*>(str->data));
+    printf("Reader -> %.*s\n", (int)str->size, static_cast<char*>(str->data));
 
     readers--;
 
