@@ -2,7 +2,7 @@
 #include <pthread.h>
 
 #define NUM_READERS 12
-#define NUM_WRITERS 100
+#define NUM_WRITERS 1000
 
 struct Shared
 {
@@ -27,7 +27,7 @@ static int writers = 0;
 int main()
 {
 
-    Shared *buff = new Shared();
+    Shared* buff = new Shared;
 
     pthread_t threadsR[NUM_READERS];
     pthread_t threadsW[NUM_WRITERS];
@@ -74,6 +74,10 @@ int main()
 
     printf("Buffer size: %lu\n", buff->size);
 
+    free (buff->data);
+
+    delete buff;
+
     return 0;
 }
 
@@ -91,7 +95,7 @@ void* read(void* buffer)
 
     Shared *str = static_cast<Shared*>(buffer);
 
-    printf("Reader -> %.*s\n", (int)str->size, static_cast<char*>(str->data));
+    printf("Reader -> %.*s\n", static_cast<int>(str->size), static_cast<char*>(str->data));
 
     readers--;
 
